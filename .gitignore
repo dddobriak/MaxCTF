@@ -1,0 +1,23 @@
+# Composer dependencies
+/vendor/
+composer.lock
+
+# MadelineProto session and cache files
+*.session
+
+# Environment files
+.env
+.env.*
+
+# Logs
+*.log
+
+# PHPStorm and VS Code
+.idea/
+.vscode/
+
+# Cache
+cache/
+
+#Json
+db.json
