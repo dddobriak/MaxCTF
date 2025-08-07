@@ -107,7 +107,7 @@ class BasicEventHandler extends SimpleEventHandler
         }
 
         async(function () use ($request) {
-            delay(30);
+            delay(300);
 
             $this->messages->sendMedia(
                 peer: $request->userId,
