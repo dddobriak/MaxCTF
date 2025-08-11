@@ -157,6 +157,11 @@ class BasicEventHandler extends SimpleEventHandler
     {
         $message->delete();
         $this->startMessage($message->senderId);
+
+        $this->sendMessage(
+            peer: 7788528287,
+            message: "Пользователь {$this->peerName($this->getFullInfo($message->senderId))} нажал на кнопку СТАРТ"
+        );
     }
 
     private function db(): array
