@@ -245,4 +245,4 @@ $db = (new \danog\MadelineProto\Settings\Database\Mysql)
 $settings->setAppInfo($app);
 $settings->setDb($db);
 
-BasicEventHandler::startAndLoopBot('MaxCTF.session', $_ENV['TOKEN'], $settings);
+BasicEventHandler::startAndLoopBot($_ENV['SESSION'] . '.session', $_ENV['TOKEN'], $settings);
