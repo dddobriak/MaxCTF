@@ -21,7 +21,7 @@ cache/
 
 #Json
 db.json
-links.json
+cfg.json
 
 #Images
 img/
