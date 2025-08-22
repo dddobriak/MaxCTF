@@ -135,7 +135,7 @@ class BasicEventHandler extends SimpleEventHandler
     {
         if ($message->newParticipant instanceof Left) {
             // If the user is an admin, do not remove them from the queue
-            if ($message->userId == self::ADMIN) {
+            if ($message->userId == self::cfg('ADMIN')) {
                 return;
             }
 
