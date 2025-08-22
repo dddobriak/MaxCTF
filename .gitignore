@@ -22,3 +22,6 @@ cache/
 #Json
 db.json
 links.json
+
+#Images
+img/
