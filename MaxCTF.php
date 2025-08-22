@@ -66,22 +66,6 @@ class BasicEventHandler extends SimpleEventHandler
     }
 
     /**
-     * Returns the configuration value for the given key.
-     * @param string $key
-     * @return string
-     */
-    private static function cfg(string $key): string
-    {
-        if (!self::$config) {
-            $file = __DIR__ . '/config.json';
-            self::$config = file_exists($file)
-                ? json_decode(file_get_contents($file), true)
-                : [];
-        }
-        return self::$config[$key] ?? '';
-    }
-
-    /**
      * Handle incoming updates from users, chats and channels.
      */
     #[Handler]
@@ -199,6 +183,32 @@ class BasicEventHandler extends SimpleEventHandler
     }
 
     /**
+     * Returns the configuration value for the given key.
+     * @param string $key
+     * @return string
+     */
+    private static function cfg(string $key): string
+    {
+        if (!self::$config) {
+            $file = __DIR__ . '/cfg.json';
+
+            if (!File\exists($file)) {
+                return '';
+            }
+
+            try {
+                $json = File\read($file);
+            } catch (\Throwable $e) {
+                return '';
+            }
+
+            self::$config = json_decode($json, true) ?? [];
+        }
+
+        return self::$config[$key] ?? '';
+    }
+
+    /**
      * Sends the initial message to the user when they press the "Start" button.
      *
      * @param int $peerId The ID of the peer (user) to send the message to.
@@ -215,8 +225,8 @@ class BasicEventHandler extends SimpleEventHandler
             parse_mode: 'markdown',
             reply_markup: KeyboardInline::new()
                 ->row(
-                    InlineButton::Url('💎 СТРАТЕГИЯ 💎', self::STRATEGY),
-                    InlineButton::Url('✍🏻 ОТЗЫВЫ ✍🏻', self::REVIEWS)
+                    InlineButton::Url('💎 СТРАТЕГИЯ 💎', self::cfg('STRATEGY')),
+                    InlineButton::Url('✍🏻 ОТЗЫВЫ ✍🏻', self::cfg('REVIEWS'))
                 )
                 ->build()
         );
