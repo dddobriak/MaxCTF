@@ -37,6 +37,9 @@ class BasicEventHandler extends SimpleEventHandler
     #[OrmMappedArray(KeyType::STRING, ValueType::BOOL)]
     private DbArray $queue;
 
+    #[OrmMappedArray(KeyType::STRING, ValueType::BOOL)]
+    private DbArray $welcomeSent;
+
     /**
      * Get peer(s) where to report errors.
      */
@@ -102,6 +105,8 @@ class BasicEventHandler extends SimpleEventHandler
                 ->build()
         );
 
+        $this->welcomeSent[$request->userId] = true;
+
         if (isset($this->queue[$request->userId])) {
             // If the user is already in the queue, do not add them again
             return;
@@ -165,6 +170,26 @@ class BasicEventHandler extends SimpleEventHandler
         );
     }
 
+    #[FiltersOr(
+        new FilterBotCommand('sendMessage'),
+    )]
+    public function onPressSend(Message $message): void
+    {
+        if (!in_array($message->senderId, self::cfg('SENDERS'))) {
+            return;
+        }
+
+        if (!isset($message->commandArgs)) {
+            $this->messages->sendMessage(
+                peer: $message->senderId,
+                message: "Использование: /sendMessage <текст>"
+            );
+            return;
+        }
+
+        $this->forwardMessageToWelcomeSent($message);
+    }
+
     private function db(): array
     {
         $file = __DIR__ . '/db.json';
@@ -185,9 +210,9 @@ class BasicEventHandler extends SimpleEventHandler
     /**
      * Returns the configuration value for the given key.
      * @param string $key
-     * @return string
+     * @return string|array
      */
-    private static function cfg(string $key): string
+    private static function cfg(string $key): string|array
     {
         if (!self::$config) {
             $file = __DIR__ . '/cfg.json';
@@ -232,6 +257,31 @@ class BasicEventHandler extends SimpleEventHandler
         );
     }
 
+    /**
+     * Forwards a message to all users in the queue.
+     * @param Message $message The message to use.
+     * @return void
+     */
+    private function forwardMessageToWelcomeSent(Message $message): void
+    {
+        foreach ($this->welcomeSent as $userId => $value) {
+            if ($message->senderId == $userId) {
+                // Do not forward the message back to the sender
+                continue;
+            }
+
+            $this->messages->sendMessage(
+                peer: $userId,
+                message: implode(' ', $message->commandArgs),
+            );
+        }
+    }
+
+    /**
+     * Returns the display name of a peer from their full info.
+     * @param array $info
+     * @return string
+     */
     private function peerName(array $info): string
     {
         $username = $info['User']['username'] ?? '';
